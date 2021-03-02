@@ -1,5 +1,5 @@
 # fryptor
-Memory-friendly file encryptor/decryptor.
+A memory-friendly file encryptor/decryptor.
 ```commandline
 usage: fryptor.py [-h] -i PATH -k KEY [-o PATH]
 
