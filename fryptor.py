@@ -4,11 +4,6 @@ import logging
 from threading import Thread
 import os
 
-logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
-
-_total = 0
-_count = 0
-
 
 def _key_parser(key: str):
     seed = key.encode()
@@ -21,8 +16,6 @@ def _file_reader(path: str):
     global _total
     global _count
     _total = os.path.getsize(path)
-    logging.info(f'name: {path}')
-    logging.info(f'size: {_total / 1024 ** 2} MB')
     with open(path, 'rb') as f:
         while _count < _total:
             yield ord(f.read(1))
@@ -57,6 +50,11 @@ def process(src: str, dst: str, key: str):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
+
+    _total = 0
+    _count = 0
+
     parser = ArgumentParser()
     parser.add_argument('-i', '--in', help='path to source file', metavar='PATH', required=True, dest='src')
     parser.add_argument('-k', '--key', help='key used in encryption/decryption', required=True)
@@ -68,11 +66,11 @@ if __name__ == '__main__':
         logging.warning('Output path not specified, source file will be replaced.')
 
 
-    def bar():
-        global _total
-        global _count
+    def details():
         while _count == 0:
             pass
+        logging.info(f'name: {args.src}')
+        logging.info(f'size: {_total / 1024 ** 2} MB')
         while _count < _total:
             print(f'\rprocessing......{100 * _count / _total: .2f} %', end='')
         print(f'\rprocessing......{100 * _count / _total: .2f} %')
@@ -80,7 +78,7 @@ if __name__ == '__main__':
 
     threads = [
         Thread(target=process, args=(args.src, args.dst, args.key), daemon=True),
-        Thread(target=bar, daemon=True),
+        Thread(target=details, daemon=True),
     ]
 
     for t in threads:
