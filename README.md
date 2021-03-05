@@ -10,3 +10,4 @@ optional arguments:
   -o PATH, --out PATH  path to output file
 
 ```
+If u wanna process a folder, u need to write another script calling `process()` from `fryptor.py` and customize `dst` for every file included in that folder by yourself.
