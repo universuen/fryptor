@@ -1,4 +1,4 @@
-from hashlib import md5
+from hashlib import sha1
 from argparse import ArgumentParser
 import logging
 from threading import Thread
@@ -12,19 +12,17 @@ _count = 0
 
 def _key_parser(key: str):
     seed = key.encode()
-    ptr = 0
     while True:
-        while ptr < len(seed):
-            yield seed[ptr]
-            ptr += 1
-        ptr = 0
-        seed = md5(seed).digest()
+        seed = sha1(seed).digest()
+        yield seed[0]
 
 
 def _file_reader(path: str):
     global _total
     global _count
     _total = os.path.getsize(path)
+    logging.info(f'name: {path}')
+    logging.info(f'size: {_total / 1024 ** 2} MB')
     with open(path, 'rb') as f:
         while _count < _total:
             yield ord(f.read(1))
@@ -65,7 +63,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--out', help='path to output file', metavar='PATH', dest='dst')
     args = parser.parse_args()
     if not os.path.exists(args.src):
-        raise FileExistsError('Path to source file is wrong!')
+        raise FileExistsError('Wrong source path!')
     if args.dst is None:
         logging.warning('Output path not specified, source file will be replaced.')
 
@@ -73,19 +71,17 @@ if __name__ == '__main__':
     def bar():
         global _total
         global _count
-        while _total == 0:
+        while _count == 0:
             pass
         while _count < _total:
-            print(f'{100 * _count / _total: .2f} %', end='\r')
-        print(f'{100 * _count / _total: .2f} %')
+            print(f'\rprocessing......{100 * _count / _total: .2f} %', end='')
+        print(f'\rprocessing......{100 * _count / _total: .2f} %')
 
 
     threads = [
-        Thread(target=process, args=(args.src, args.dst, args.key)),
-        Thread(target=bar),
+        Thread(target=process, args=(args.src, args.dst, args.key), daemon=True),
+        Thread(target=bar, daemon=True),
     ]
-
-    logging.info('Started processing')
 
     for t in threads:
         t.start()
