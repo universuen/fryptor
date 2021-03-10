@@ -56,9 +56,9 @@ if __name__ == '__main__':
     _count = 0
 
     parser = ArgumentParser()
-    parser.add_argument('-i', '--in', help='path to source file', metavar='PATH', required=True, dest='src')
-    parser.add_argument('-k', '--key', help='key used in encryption/decryption', required=True)
-    parser.add_argument('-o', '--out', help='path to output file', metavar='PATH', dest='dst')
+    parser.add_argument('-i', '--in', help='assign path to source file', metavar='PATH', required=True, dest='src')
+    parser.add_argument('-k', '--key', help='assign key used in encryption/decryption', required=True)
+    parser.add_argument('-o', '--out', help='assign path to output file', metavar='PATH', dest='dst')
     args = parser.parse_args()
     if not os.path.exists(args.src):
         raise FileExistsError('Wrong source path!')
