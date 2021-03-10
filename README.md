@@ -1,7 +1,7 @@
 # fryptor
 A memory-friendly file encryptor/decryptor.
 ```commandline
-usage: fryptor.py [-h] -i PATH -k KEY [-o PATH]
+usage: python3 fryptor.py [-h] -i PATH -k KEY [-o PATH]
 
 optional arguments:
   -h, --help           show help message and exit
