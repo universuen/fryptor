@@ -4,6 +4,9 @@ import logging
 from threading import Thread
 import os
 
+_total = 0
+_count = 0
+
 
 def _key_parser(key: str):
     seed = key.encode()
@@ -49,11 +52,18 @@ def process(src: str, dst: str, key: str):
         os.rename(dst, src)
 
 
+def _detail():
+    while _count == 0:
+        pass
+    logging.info(f'name: {args.src}')
+    logging.info(f'size: {_total / 1024 ** 2} MB')
+    while _count < _total:
+        print(f'\rprocessing......{100 * _count / _total: .2f} %', end='')
+    print(f'\rprocessing......{100 * _count / _total: .2f} %')
+
+
 if __name__ == '__main__':
     logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
-
-    _total = 0
-    _count = 0
 
     parser = ArgumentParser()
     parser.add_argument('-i', '--in', help='assign path to source file', metavar='PATH', required=True, dest='src')
@@ -65,20 +75,9 @@ if __name__ == '__main__':
     if args.dst is None:
         logging.warning('Output path not specified, source file will be replaced.')
 
-
-    def details():
-        while _count == 0:
-            pass
-        logging.info(f'name: {args.src}')
-        logging.info(f'size: {_total / 1024 ** 2} MB')
-        while _count < _total:
-            print(f'\rprocessing......{100 * _count / _total: .2f} %', end='')
-        print(f'\rprocessing......{100 * _count / _total: .2f} %')
-
-
     threads = [
         Thread(target=process, args=(args.src, args.dst, args.key), daemon=True),
-        Thread(target=details, daemon=True),
+        Thread(target=_detail, daemon=True),
     ]
 
     for t in threads:
